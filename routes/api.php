@@ -19,7 +19,9 @@ use App\Http\Middleware\JwtMiddleware;
 Route::prefix("user")->group(function () {
     Route::post("/", [UserController::class,"register"]);
     Route::post("/login", [UserController::class,"login"]);
-    // Route::post("/many", [UserController::class,"createManyAuto"]); // for create many users
+    
+    // queue job 
+    Route::post("/many", [UserController::class,"createManyAuto"]); // for create many users
 
     Route::middleware([JwtMiddleware::class])->group(function () {
         Route::get("/", [UserController::class,"getAll"]);

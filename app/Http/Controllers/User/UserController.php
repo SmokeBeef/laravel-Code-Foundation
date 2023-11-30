@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserCreateRequest;
 use App\Http\Requests\User\UserLoginRequest;
+use App\Jobs\User\InsertManyData;
 use App\Models\User;
 use App\Service\User\UserService;
 use Illuminate\Http\Request;
@@ -15,7 +16,8 @@ class UserController extends Controller
 {
     public function __construct(
         private UserService $userService,
-    ) {}
+    ) {
+    }
 
 
     public function login(UserLoginRequest $req)
@@ -46,9 +48,12 @@ class UserController extends Controller
         ], 201);
     }
 
-    public function getAll()
+    public function getAll(Request $req)
     {
-        $users = $this->userService->getAll();
+        $page = $req->query("page", 1);
+        $perPage = $req->query("limit", 10);
+        $offset = $perPage * ($page - 1);
+        $users = $this->userService->getAll($perPage, $offset);
         return response()->json([
             "message" => "success",
             "data" => $users
@@ -73,14 +78,13 @@ class UserController extends Controller
 
     }
 
-    // public function createManyAuto()
-    // {
-    //     $users = $this->userService->createManyAuto();
-    //     return response()->json([
-    //         "message" => "success",
-    //         "data" => $users
-    //     ], 201);
-    // }
+    public function createManyAuto()
+    {
+        InsertManyData::dispatch();
+        return response()->json([
+            "message" => "success",
+        ], 201);
+    }
 
 
 }

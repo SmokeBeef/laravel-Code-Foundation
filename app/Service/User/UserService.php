@@ -3,32 +3,34 @@
 namespace App\Service\User;
 
 use App\Models\User;
-use App\Repositories\User\UserRepositories;
+use App\Repository\User\UserRepository;
 
-class UserService {
 
-    public function __construct(
-        private UserRepositories $userRepositories
-    )
+class UserService
+{
+
+    protected $userRepository;
+    public function __construct(UserRepository $userRepository)
     {
+        $this->userRepository = $userRepository;
     }
 
     public function createOne($data)
     {
-        $user = $this->userRepositories->createOne($data);
+        $user = $this->userRepository->createOne($data);
         return $user;
     }
     public function updateByid($id, $data)
     {
-        $user = $this->userRepositories->updateByid($id, $data);
+        $user = $this->userRepository->updateByid($id, $data);
         return $user;
     }
-    public function getAll()
+    public function getAll($limit = 10, $offset = 0)
     {
-        return $this->userRepositories->findAll();
+        return $this->userRepository->findAll($limit, $offset);
     }
-    // public function createManyAuto()
-    // {
-    //     return $this->userRepositories->createMany();
-    // }
+    public function createManyAuto()
+    {
+        return $this->userRepository->createMany();
+    }
 }
