@@ -32,7 +32,7 @@ class InsertManyData implements ShouldQueue
         for ($i = 1; $i <= 10000; $i++) {
             array_push($usersManyPayload, [
                 "name" => "John",
-                "email" => "deva" . $i + $users . "@gmail.com",
+                "email" => "John" . $i + $users . "@gmail.com",
                 "password" => "123",
                 "role" => "admin"
             ]);

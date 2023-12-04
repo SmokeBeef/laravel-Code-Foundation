@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository\User;
+namespace App\Repositories\Admin;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Redis;
@@ -16,21 +16,6 @@ class UserRepository
         $this->userRediskey = "user";
     }
 
-    public function createMany() // for create many users
-    {
-        $users = $this->user::count();
-        $usersManyPayload = [];
-        for ($i = 1; $i <= 100000; $i++) {
-            array_push($usersManyPayload, [
-                "name" => "John",
-                "email" => "deva" . $i + $users . "@gmail.com",
-                "password" => "123",
-                "role" => "admin"
-            ]);
-        }
-        $this->user::insert($usersManyPayload);
-        return null;
-    }
 
     public function createOne($data)
     {
@@ -45,7 +30,7 @@ class UserRepository
         return $user;
     }
 
-    public function findAll($limit, $offset)
+    public function findAllPaginate($offset, $limit)
     {
         // $users = Redis::get($this->userRediskey);
         // if ($users) {
@@ -54,5 +39,11 @@ class UserRepository
         $users = $this->user::limit($limit)->offset($offset)->get();
         // Redis::set($this->userRediskey, json_encode($users), "EX", 5);
         return $users;
+    }
+    public function deleteById($id)
+    {
+        $user = $this->user::find($id);
+        $user->delete();
+        return $user;
     }
 }

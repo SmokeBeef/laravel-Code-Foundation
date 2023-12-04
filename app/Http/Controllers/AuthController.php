@@ -1,27 +1,30 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers;
 
+use App\Dto\User\UserCreateDto;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\UserCreateRequest;
-use App\Http\Requests\User\UserLoginRequest;
+use App\Http\Requests\UserRequest;
 use App\Jobs\User\InsertManyData;
 use App\Models\User;
-use App\Service\User\UserService;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class UserController extends Controller
+class AuthController extends Controller
 {
+    protected $authService;
     public function __construct(
-        private UserService $userService,
+        AuthService $authService,
     ) {
+        $this->authService = $authService;
     }
 
 
-    public function login(UserLoginRequest $req)
+    public function login(UserRequest $req)
     {
+        // dd($req);
         $payload = $req->validated();
 
         $token = auth()->attempt($payload);
@@ -37,28 +40,19 @@ class UserController extends Controller
             ]
         ]);
     }
-    public function register(UserCreateRequest $req)
+    public function register(UserRequest $req)
     {
         $payload = $req->validated();
 
-        $this->userService->createOne($payload);
+        $user = $this->authService->createOne($payload);
 
         return response()->json([
             "message" => "success create user",
+            "data" => $user
         ], 201);
     }
 
-    public function getAll(Request $req)
-    {
-        $page = $req->query("page", 1);
-        $perPage = $req->query("limit", 10);
-        $offset = $perPage * ($page - 1);
-        $users = $this->userService->getAll($perPage, $offset);
-        return response()->json([
-            "message" => "success",
-            "data" => $users
-        ]);
-    }
+
     public function logout()
     {
         auth()->logout();

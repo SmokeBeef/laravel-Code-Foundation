@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Contracts\Validation\Validator;
 
-class UserLoginRequest extends FormRequest
+class ItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,16 +23,17 @@ class UserLoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            "email" => "required|string|email|max:100",
-            "password" => "required|string|max:100",
+        // default create
+        $rules = [
+            "name" => "required|string|max:100"
         ];
+        return $rules;
     }
 
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            "error" => $validator->getMessageBag(),
+            "errors" => $validator->getMessageBag(),
         ], 400));
 
     }
