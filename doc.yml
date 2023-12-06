@@ -1,0 +1,388 @@
+openapi: "3.0.2"
+info:
+  title: Doc For Code Foundation
+
+  version: "1.0"
+  description: Sample Documentation API for Code Foundation
+servers:
+  - url: http://localhost:8000/api
+
+tags:
+  - name: auth
+    description: Authorization operation
+  - name: user
+    description: user operation
+  - name: item
+    description: item operation
+  - name: admin
+    description: operation for admin only
+  - name: resepsionis
+    description: operation for resepsionis only
+
+paths:
+  #################
+  # auth operation
+  #
+  /user/login:
+    post:
+      tags:
+        - auth
+      summary: user login
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: resep@gmail.com
+                  maximum: 100
+                password:
+                  type: string
+                  example: 123
+
+      responses:
+        200:
+          description: Success Login
+          content:
+            application/json:
+              example:
+                message: string
+                data:
+                  token: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      email:
+                        type: array
+                        nullable: true
+                        example:
+                          - email must a string
+                      password:
+                        type: array
+                        nullable: true
+                        example:
+                          - passwod required
+
+  /user/register:
+    post:
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  maximum: 100
+                  example: John Doe
+                email:
+                  type: string
+                  example: john@gmail.com
+                password:
+                  type: string
+                  example: 123
+                role:
+                  type: string
+                  example: admin
+                  enum:
+                    - admin
+                      resepsionis
+
+      responses:
+        201:
+          description: success register
+          content:
+            application/json:
+              example:
+                message: success register
+  /user/refreshToken:
+    get:
+      summary: get refresh token
+
+      tags:
+        - auth
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: token
+        401:
+          $ref: "#/components/responses/tokenError"
+  /user/logout:
+    delete:
+      summary: logout
+      tags:
+        - auth
+      description: logout user
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              example:
+                message: string
+        401:
+          $ref: "#/components/responses/tokenError"
+
+  ################
+  # user operation
+  #
+  /user:
+    get:
+      tags:
+        - user
+        - admin
+      summary: get user with pagination
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+
+      responses:
+        200:
+          $ref: "#/components/responses/user"
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/adminOnly"
+  /user/{id}:
+    delete:
+      summary: delete user by id
+      operationId: id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User id
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+        - admin
+
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              example:
+                message: success delete user id {id}
+
+  #################
+  # item operation
+  #
+  /item:
+    get:
+      summary: Get Items pagination
+      tags:
+        - item
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              example:
+                message: success
+                data:
+                  - id: int
+                    name: string
+                    created_at: string
+                    updated_at: string
+    post:
+      summary: Create new item
+      tags:
+        - item
+        - resepsionis
+      security:
+        - bearerAuth: []
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maximum: 100
+                  nullable: false
+      responses:
+        201:
+          description: success
+          content:
+            application/json:
+              example:
+                message: string
+                data:
+                 name: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                errors: 
+                  name: 
+                    - string
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
+  /item/{id}:
+    put:
+      summary: Update item by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  nullable: false
+                  
+      tags:
+        - item
+        - resepsionis
+      operationId: id
+      security:
+        - bearerAuth: []
+      responses:
+        201:
+          description: success
+          content:
+            application/json:
+              example:
+               message: success
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                errors: 
+                  name: 
+                    - string
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
+        
+    delete:
+      summary: delete item by id
+      operationId: id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      tags:
+        - item
+        - resepsionis
+      security:
+        - bearerAuth: []
+      responses:
+        200: 
+          description: success
+          content:
+            application/json:
+              example:
+                message: Success delete item id {id}
+
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
+      
+      
+      
+
+components:
+  parameters:
+    page:
+      in: query
+      name: page
+      description: page
+      schema:
+        type: integer
+    limit:
+      name: limit
+      description: many data to get
+      in: query
+      schema:
+        type: integer
+  responses:
+    user:
+      description: success get all
+      content:
+        application/json:
+          schema:
+            example:
+              message: string
+              data:
+                - id: int
+                  name: string
+                  email: string
+                  role: string
+                  created_at: string
+                  updated_at: string
+    adminOnly:
+      description: Forbidden
+      content:
+        application/json:
+          example:
+            error: You do not have access to this feature as an admin.
+    resepsionisOnly:
+      description: Forbidden
+      content:
+        application/json:
+          example:
+            error: You do not have access to this feature as an resepsionis.
+    tokenError:
+      description: Token Error
+      content:
+        application/json:
+          example:
+            error: Token is Invalid | Token is Expired | Token Not Found
+
+  securitySchemes:
+    bearerAuth:
+      description: use token after login
+      type: http
+      scheme: bearer

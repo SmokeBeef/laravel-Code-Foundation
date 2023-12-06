@@ -16,4 +16,16 @@ class ItemRepository
         $item = $this->itemModel::create($data);
         return $item;
     }
+    public function updateOne($id, $data)
+    {
+        $item = $this->itemModel::find($id);
+        $item->update($data);
+        return $item;
+    }
+    public function deleteOne($id)
+    {
+        $item = $this->itemModel::find($id);
+        $item->delete();
+        return $item;
+    }
 }

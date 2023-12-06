@@ -25,7 +25,7 @@ class ItemController extends Controller
         $totalItems = $this->itemService->total();
 
         return response()->json([
-            "message" => "message",
+            "message" => "success get items",
             "data" => $items,
             "meta" => [
                 "total" => $totalItems,

@@ -17,4 +17,14 @@ class ItemService
         $item = $this->item->createOne($data);
         return $item;
     }
+    public function updateOne($id, $data)
+    {
+        $item = $this->item->updateOne($id, $data);
+        return $item;
+    }
+    public function deleteOne($id)
+    {
+        $item = $this->item->deleteOne($id);
+        return $item;
+    }
 }

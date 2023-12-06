@@ -12,7 +12,7 @@ class ItemController extends Controller
     protected $itemService;
     public function __construct(ItemService $itemService)
     {
-        $this->middleware([JwtMiddleware::class,"resepsionis_only"]);
+        $this->middleware(["jwt", "resepsionis_only"]);
         $this->itemService = $itemService;
     }
 
@@ -25,5 +25,21 @@ class ItemController extends Controller
             "message" => "success create item",
             "data" => $item,
         ], 201);
+    }
+    public function update(ItemRequest $req, $id)
+    {
+        $item = $this->itemService->updateOne($id, $req->validated());
+
+        return response()->json([
+            "message" => "success update",
+            "data" => $item,
+        ], 201);
+    }
+    public function destroy($id)
+    {
+        $item = $this->itemService->deleteOne($id);
+        return response()->json([
+            "message"=> "success delete item",
+        ]);
     }
 }

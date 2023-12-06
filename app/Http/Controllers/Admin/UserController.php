@@ -30,7 +30,7 @@ class UserController extends Controller
             "data" => $users
         ]);
     }
-    public function deleteById($id)
+    public function delete($id)
     {
         $this->userService->deleteById($id);
         return response()->json([

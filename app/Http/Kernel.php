@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin_only' => AdminMiddleware::class,
         'resepsionis_only' => ResepsionisMiddleware::class,
+        'jwt' => JwtMiddleware::class
     ];
 }

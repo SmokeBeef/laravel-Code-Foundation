@@ -30,7 +30,7 @@ class AuthController extends Controller
         $token = auth()->attempt($payload);
         if (!$token) {
             return response()->json([
-                "error" => "Unautorized"
+                "error" => "Unauthorized"
             ], 401);
         }
         return response()->json([
