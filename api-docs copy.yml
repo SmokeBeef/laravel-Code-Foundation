@@ -1,16 +1,16 @@
 openapi: "3.0.2"
 info:
-  title: Doc For Code Foundation
+  title: Docs For Code Foundation
 
   version: "1.0"
   description: "
     Sample Documentation API for Code Foundation \n
-    ### Error response internal server error: \n
+    ### Error response for internal server error: \n
     ```
   
     {\n
     \t\"code\": 500,\n
-    \t\"message\": \"\",\n
+    \t\"message\": \"Sorry, there was an error on the Server Side\",\n
     \t\"data\": null\n
     }
 
