@@ -40,6 +40,10 @@ class UserRepository
         // Redis::set($this->userRediskey, json_encode($users), "EX", 5);
         return $users;
     }
+    public function count()
+    {
+        return $this->user::count();
+    }
     public function deleteById($id)
     {
         $user = $this->user::find($id);

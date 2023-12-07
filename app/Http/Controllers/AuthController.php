@@ -29,16 +29,9 @@ class AuthController extends Controller
 
         $token = auth()->attempt($payload);
         if (!$token) {
-            return response()->json([
-                "error" => "Unauthorized"
-            ], 401);
+            return $this->responseError("email or password not sign", 401);
         }
-        return response()->json([
-            "message" => "success login",
-            "data" => [
-                "token" => $token
-            ]
-        ]);
+        return $this->responseSuccess("Success Login", ["token" => $token]);
     }
     public function register(UserRequest $req)
     {
@@ -46,38 +39,27 @@ class AuthController extends Controller
 
         $user = $this->authService->createOne($payload);
 
-        return response()->json([
-            "message" => "success create user",
-            "data" => $user
-        ], 201);
+        return $this->responseSuccess("Success Register", $user, 201);
     }
 
 
     public function logout()
     {
         auth()->logout();
-        return response()->json([
-            "message" => "success logout"
-        ]);
+        return $this->responseSuccess("Success Logout", );
     }
+
     public function refreshToken()
     {
         $token = auth()->refresh();
-        return response()->json([
-            "message" => "success",
-            "data" => [
-                "token" => $token
-            ]
-        ]);
+        return $this->responseSuccess("Success Get RefreshToken", ["token" => $token]);
 
     }
 
     public function createManyAuto()
     {
         InsertManyData::dispatch();
-        return response()->json([
-            "message" => "success",
-        ], 201);
+        return $this->responseSuccess("Success Create Many");
     }
 
 

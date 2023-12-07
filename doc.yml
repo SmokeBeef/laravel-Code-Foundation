@@ -49,6 +49,7 @@ paths:
           content:
             application/json:
               example:
+                code: 200
                 message: string
                 data:
                   token: string
@@ -72,6 +73,14 @@ paths:
                         nullable: true
                         example:
                           - passwod required
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                code: 401
+                message: email or pasword not sign
+                data: null
 
   /user/register:
     post:
@@ -106,6 +115,36 @@ paths:
             application/json:
               example:
                 message: success register
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: array
+                        nullable: true
+                        example:
+                          - field name id required
+                      email:
+                        type: array
+                        nullable: true
+                        example:
+                          - email must a string
+                      password:
+                        type: array
+                        nullable: true
+                        example:
+                          - passwod required
+                      role:
+                        type: array
+                        nullable: true
+                        example:
+                          - field role is required
   /user/refreshToken:
     get:
       summary: get refresh token
@@ -149,7 +188,9 @@ paths:
           content:
             application/json:
               example:
-                message: string
+                code: 200
+                message: success logout
+                data: null
         401:
           $ref: "#/components/responses/tokenError"
 
@@ -199,6 +240,10 @@ paths:
             application/json:
               example:
                 message: success delete user id {id}
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/adminOnly"
 
   #################
   # item operation
@@ -217,12 +262,22 @@ paths:
           content:
             application/json:
               example:
-                message: success
-                data:
-                  - id: int
-                    name: string
-                    created_at: string
-                    updated_at: string
+                code: 200
+                message: success get all items
+                datas:
+                  - id: 1
+                    name: aqua 400ml
+                    created_at: "2023-12-05T09:34:47.000000Z"
+                    updated_at: "2023-12-05T09:34:47.000000Z"
+                meta:
+                  totalData: 500
+                  perPage: 1
+                  currentPage: 1
+                  totalPage: 500
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
     post:
       summary: Create new item
       tags:
@@ -230,7 +285,7 @@ paths:
         - resepsionis
       security:
         - bearerAuth: []
-      
+
       requestBody:
         required: true
         content:
@@ -242,23 +297,31 @@ paths:
                   type: string
                   maximum: 100
                   nullable: false
+                  example: aqua 400 ml
+                
       responses:
         201:
           description: success
           content:
             application/json:
               example:
-                message: string
+                code: 201
+                message: success create item
                 data:
-                 name: string
+                  name: aqua 400 ml
+                  id: 1
+                  created_at: "2023-12-07T03:16:05.000000Z"
+                  updated_at: "2023-12-07T03:16:05.000000Z"
         400:
           description: Bad Request
           content:
             application/json:
               example:
-                errors: 
-                  name: 
-                    - string
+                errors:
+                  name:
+                    - field name is required
+        401:
+          $ref: "#/components/responses/tokenError"
         403:
           $ref: "#/components/responses/resepsionisOnly"
   /item/{id}:
@@ -280,7 +343,8 @@ paths:
                 name:
                   type: string
                   nullable: false
-                  
+                  example: aqua 1 liter
+
       tags:
         - item
         - resepsionis
@@ -293,18 +357,29 @@ paths:
           content:
             application/json:
               example:
-               message: success
+                code: 201
+                message: success update item
+                data:
+                  name: aqua 1 liter
+                  id: 1
+                  created_at: "2023-12-07T03:16:05.000000Z"
+                  updated_at: "2023-12-07T03:16:05.000000Z"
+
         400:
           description: Bad Request
           content:
             application/json:
               example:
-                errors: 
-                  name: 
+                errors:
+                  name:
                     - string
+        401:
+          $ref: "#/components/responses/tokenError"
         403:
           $ref: "#/components/responses/resepsionisOnly"
-        
+        404:
+          $ref: "#/components/responses/idNotFound"
+
     delete:
       summary: delete item by id
       operationId: id
@@ -320,18 +395,24 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        200: 
+        200:
           description: success
           content:
             application/json:
               example:
+                cod: 200
                 message: Success delete item id {id}
-
+                data: 
+                  id: 1
+                  name: aqua 400 ml
+                  created_at: "2023-12-07T03:16:05.000000Z"
+                  updated_at: "2023-12-07T03:16:05.000000Z"
+        401:
+          $ref: "#/components/responses/tokenError"
         403:
           $ref: "#/components/responses/resepsionisOnly"
-      
-      
-      
+        404:
+          $ref: "#/components/responses/idNotFound"
 
 components:
   parameters:
@@ -343,7 +424,7 @@ components:
         type: integer
     limit:
       name: limit
-      description: many data to get
+      description: many data to get, (default 10)
       in: query
       schema:
         type: integer
@@ -354,32 +435,54 @@ components:
         application/json:
           schema:
             example:
+              code: 200
               message: string
-              data:
-                - id: int
-                  name: string
-                  email: string
-                  role: string
-                  created_at: string
-                  updated_at: string
+              datas:
+                - id: 1
+                  name: John
+                  email: John@email.com
+                  role: admin
+                  created_at: "2023-12-05T09:34:47.000000Z"
+                  updated_at: "2023-12-05T09:34:47.000000Z"
+              meta:
+                totalData: 500
+                perPage: 1
+                currentPage: 1
+                totalPage: 500
     adminOnly:
       description: Forbidden
       content:
         application/json:
           example:
-            error: You do not have access to this feature as an admin.
+            code: 403
+            message: only admin can access this.
+            data: null 
+            
     resepsionisOnly:
       description: Forbidden
       content:
         application/json:
           example:
-            error: You do not have access to this feature as an resepsionis.
+            code: 403
+            message: only resepsionis can access this.
+            data: null 
+            
     tokenError:
-      description: Token Error
+      description: Unauthorized
       content:
         application/json:
           example:
-            error: Token is Invalid | Token is Expired | Token Not Found
+            code: 401
+            message: Token is Invalid
+            data: null 
+    idNotFound:
+      description: Not Found
+      content:
+        application/json:
+          example:
+            code: 404
+            message: id 5 not found
+            data: null
 
   securitySchemes:
     bearerAuth:

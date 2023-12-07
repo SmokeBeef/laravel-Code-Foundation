@@ -25,4 +25,8 @@ class UserService
         $admin = $this->userRepository->deleteById($id);
         return $admin;
     }
+    public function count()
+    {   
+        return $this->userRepository->count();
+    }
 }

@@ -21,25 +21,25 @@ class ItemController extends Controller
         $payload = $req->validated();
 
         $item = $this->itemService->createOne($payload);
-        return response()->json([
-            "message" => "success create item",
-            "data" => $item,
-        ], 201);
+        return $this->responseSuccess("Success create item", $item, 201);
     }
     public function update(ItemRequest $req, $id)
     {
-        $item = $this->itemService->updateOne($id, $req->validated());
+        $payload = $req->validated();
+        $item = $this->itemService->updateOne($id, $payload);
 
-        return response()->json([
-            "message" => "success update",
-            "data" => $item,
-        ], 201);
+        if (!$item) {
+            return $this->responseError("id item " . $id . " Not found", 404);
+        }
+
+        return $this->responseSuccess("Success create item", $item, 201);
     }
     public function destroy($id)
     {
         $item = $this->itemService->deleteOne($id);
-        return response()->json([
-            "message"=> "success delete item",
-        ]);
+        if (!$item) {
+            return $this->responseError("id item " . $id . " Not found", 404);
+        }
+        return $this->responseSuccess("Success create item", $item);
     }
 }

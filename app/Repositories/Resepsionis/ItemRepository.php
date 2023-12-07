@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories\Resepsionis;
+
 use App\Models\Item;
 
 class ItemRepository
@@ -16,12 +17,20 @@ class ItemRepository
         $item = $this->itemModel::create($data);
         return $item;
     }
+
+    public function findbyId($id)
+    {
+        $item = $this->itemModel::find($id);
+        return $item;
+    }
+
     public function updateOne($id, $data)
     {
         $item = $this->itemModel::find($id);
         $item->update($data);
         return $item;
     }
+    
     public function deleteOne($id)
     {
         $item = $this->itemModel::find($id);

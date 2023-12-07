@@ -24,12 +24,8 @@ class ItemController extends Controller
         $items = $this->itemService->getAllPagination($offset, $perPage);
         $totalItems = $this->itemService->total();
 
-        return response()->json([
-            "message" => "success get items",
-            "data" => $items,
-            "meta" => [
-                "total" => $totalItems,
-            ]
-        ]);
+        $meta = $this->metaPagination($totalItems,  $perPage, $page);
+
+        return $this->responsePagination("Success Get Item", $items, $meta);
     }
 }

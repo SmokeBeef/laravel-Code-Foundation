@@ -25,16 +25,15 @@ class UserController extends Controller
         $offset = $perPage * ($page - 1);
 
         $users = $this->userService->getAllPaginate($offset, $perPage);
-        return response()->json([
-            "message" => "success",
-            "data" => $users
-        ]);
+
+        $totalUsers = $this->userService->count();
+        $meta = $this->metaPagination($totalUsers, $perPage, $page);
+        return $this->responsePagination("Success Get All Users", $users, $meta)
+        ;
     }
     public function delete($id)
     {
-        $this->userService->deleteById($id);
-        return response()->json([
-            "message" => "success delete user id " . $id,
-        ]);
+        $user = $this->userService->deleteById($id);
+        return $this->responseSuccess("Success Delete user id " . $id, $user);
     }
 }

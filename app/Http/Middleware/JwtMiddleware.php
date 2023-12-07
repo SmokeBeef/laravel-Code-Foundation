@@ -20,25 +20,28 @@ class JwtMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $token = JWTAuth::parseToken()->authenticate(); 
+            $token = JWTAuth::parseToken()->authenticate();
             $payload = JWTAuth::user();
             // dd($payload);
             $request->headers->set("payload", $payload);
         } catch (Exception $error) {
             if ($error instanceof TokenInvalidException) {
-                return response()->json([
-                    'error' => 'Token is Invalid'
-                ], 401);
+                return $this->response("token is invalid", 401);
             } else if ($error instanceof TokenExpiredException) {
-                return response()->json([
-                    'error' => 'Token is Expired'
-                ], 401);
+                return $this->response("token is expired", 401);
             } else {
-                return response()->json([
-                    'error' => 'Token not found'
-                ], 401);
+                return $this->response("token not found", 401);
             }
         }
         return $next($request);
+    }
+
+    private function response(string $message, int $code = 200)
+    {
+        return response()->json([
+            "code" => $code,
+            "message" => $message,
+            "data" => null
+        ]);
     }
 }

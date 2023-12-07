@@ -16,13 +16,20 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $payload = json_decode($request->headers->get("payload"));
-        
+
         if (!isset($payload->role) || $payload->role !== "admin") {
-            return response()->json([
-                "error" => "Only Admin can Access this",
-            ], Response::HTTP_FORBIDDEN);
+            return $this->response("only admin can access this", Response::HTTP_FORBIDDEN);
+
         }
 
         return $next($request);
+    }
+    private function response(string $message, int $code = 200)
+    {
+        return response()->json([
+            "code" => $code,
+            "message" => $message,
+            "data" => null
+        ]);
     }
 }

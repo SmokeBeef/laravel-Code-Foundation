@@ -16,13 +16,20 @@ class ResepsionisMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $payload = json_decode($request->headers->get("payload"));
-        
+
         if (!isset($payload->role) || $payload->role !== "resepsionis") {
-            return response()->json([
-                "error" => "Onyl resepsionis can access this",
-            ], Response::HTTP_FORBIDDEN);
+            return $this->response("only resepsionis can access this", Response::HTTP_FORBIDDEN);
+
         }
 
         return $next($request);
+    }
+    private function response(string $message, int $code = 200)
+    {
+        return response()->json([
+            "code" => $code,
+            "message" => $message,
+            "data" => null
+        ], $code);
     }
 }
