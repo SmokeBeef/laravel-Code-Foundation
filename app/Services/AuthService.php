@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\AuthRepository;
+use Exception;
 
 class AuthService
 {
@@ -15,5 +16,9 @@ class AuthService
     public function createOne($data)
     {
         return $this->authRepository->createOne($data);
+    }
+    public function findByEmail(string $email)
+    {
+        return $this->authRepository->findByEmail($email); 
     }
 }

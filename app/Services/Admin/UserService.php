@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Services\Admin;
+
 use App\Repositories\Admin\UserRepository;
+use Exception;
 
 
 
@@ -20,13 +22,15 @@ class UserService
         return $this->userRepository->findAllPaginate($offset, $limit);
     }
 
+    
+
     public function deleteById($id)
     {
         $admin = $this->userRepository->deleteById($id);
         return $admin;
     }
     public function count()
-    {   
+    {
         return $this->userRepository->count();
     }
 }

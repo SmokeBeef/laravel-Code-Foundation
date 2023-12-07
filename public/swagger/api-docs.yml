@@ -1,0 +1,523 @@
+openapi: "3.0.2"
+info:
+  title: Docs For Code Foundation
+
+  version: "1.0"
+  description: "
+    Sample Documentation API for Code Foundation \n
+    ### Error response for internal server error: \n
+    ```
+  
+    {\n
+    \t\"code\": 500,\n
+    \t\"message\": \"Sorry, there was an error on the Server Side\",\n
+    \t\"data\": null\n
+    }
+
+    ```
+    "
+servers:
+  - url: http://localhost:8000/api
+
+tags:
+  - name: auth
+    description: Authorization operation
+  - name: user
+    description: user operation
+  - name: item
+    description: item operation
+  - name: admin
+    description: operation for admin only
+  - name: resepsionis
+    description: operation for resepsionis only
+
+paths:
+  #################
+  # auth operation
+  #
+  /user/login:
+    post:
+      tags:
+        - auth
+      summary: user login
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: resep@gmail.com
+                  maximum: 100
+                password:
+                  type: string
+                  example: 123
+
+      responses:
+        200:
+          description: Success Login
+          content:
+            application/json:
+              example:
+                code: 200
+                message: string
+                data:
+                  token: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      email:
+                        type: array
+                        nullable: true
+                        example:
+                          - email must a string
+                      password:
+                        type: array
+                        nullable: true
+                        example:
+                          - passwod required
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                code: 401
+                message: email or pasword not sign
+                data: null
+
+  /user/register:
+    post:
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  maximum: 100
+                  example: John Doe
+                email:
+                  type: string
+                  example: john@gmail.com
+                password:
+                  type: string
+                  example: 123
+                role:
+                  type: string
+                  example: admin
+                  enum:
+                    - admin
+                      resepsionis
+
+      responses:
+        201:
+          description: success register
+          content:
+            application/json:
+              example:
+                code: 201
+                message: success register
+                data:
+                  id: 1
+                  name: John
+                  email: John@email.com
+                  role: admin
+                  created_at: "2023-12-05T09:34:47.000000Z"
+                  updated_at: "2023-12-05T09:34:47.000000Z"
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: array
+                        nullable: true
+                        example:
+                          - field name id required
+                      email:
+                        type: array
+                        nullable: true
+                        example:
+                          - email must a string
+                      password:
+                        type: array
+                        nullable: true
+                        example:
+                          - passwod required
+                      role:
+                        type: array
+                        nullable: true
+                        example:
+                          - field role is required
+  /user/refreshToken:
+    get:
+      summary: get refresh token
+
+      tags:
+        - auth
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                    example: 200
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: token
+        401:
+          $ref: "#/components/responses/tokenError"
+  /user/logout:
+    delete:
+      summary: logout
+      tags:
+        - auth
+      description: logout user
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              example:
+                code: 200
+                message: success logout
+                data: null
+        401:
+          $ref: "#/components/responses/tokenError"
+
+  ################
+  # user operation
+  #
+  /user:
+    get:
+      tags:
+        - user
+        - admin
+      summary: get user with pagination
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+
+      responses:
+        200:
+          $ref: "#/components/responses/user"
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/adminOnly"
+  /user/{id}:
+    delete:
+      summary: delete user by id
+      operationId: id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User id
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+        - admin
+
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              example:
+                code: 1
+                message: success delete user id {id}
+                data:
+                  id: 1
+                  name: John
+                  email: John@email.com
+                  role: admin
+                  created_at: "2023-12-05T09:34:47.000000Z"
+                  updated_at: "2023-12-05T09:34:47.000000Z"
+
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/adminOnly"
+
+  #################
+  # item operation
+  #
+  /item:
+    get:
+      summary: Get Items pagination
+      tags:
+        - item
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              example:
+                code: 200
+                message: success get all items
+                datas:
+                  - id: 1
+                    name: aqua 400ml
+                    created_at: "2023-12-05T09:34:47.000000Z"
+                    updated_at: "2023-12-05T09:34:47.000000Z"
+                meta:
+                  totalData: 500
+                  perPage: 1
+                  currentPage: 1
+                  totalPage: 500
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
+    post:
+      summary: Create new item
+      tags:
+        - item
+        - resepsionis
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maximum: 100
+                  nullable: false
+                  example: aqua 400 ml
+
+      responses:
+        201:
+          description: success
+          content:
+            application/json:
+              example:
+                code: 201
+                message: success create item
+                data:
+                  name: aqua 400 ml
+                  id: 1
+                  created_at: "2023-12-07T03:16:05.000000Z"
+                  updated_at: "2023-12-07T03:16:05.000000Z"
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                errors:
+                  name:
+                    - field name is required
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
+  /item/{id}:
+    put:
+      summary: Update item by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  nullable: false
+                  example: aqua 1 liter
+
+      tags:
+        - item
+        - resepsionis
+      operationId: id
+      security:
+        - bearerAuth: []
+      responses:
+        201:
+          description: success
+          content:
+            application/json:
+              example:
+                code: 201
+                message: success update item
+                data:
+                  name: aqua 1 liter
+                  id: 1
+                  created_at: "2023-12-07T03:16:05.000000Z"
+                  updated_at: "2023-12-07T03:16:05.000000Z"
+
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                errors:
+                  name:
+                    - string
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
+        404:
+          $ref: "#/components/responses/idNotFound"
+
+    delete:
+      summary: delete item by id
+      operationId: id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      tags:
+        - item
+        - resepsionis
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              example:
+                cod: 200
+                message: Success delete item id {id}
+                data:
+                  id: 1
+                  name: aqua 400 ml
+                  created_at: "2023-12-07T03:16:05.000000Z"
+                  updated_at: "2023-12-07T03:16:05.000000Z"
+        401:
+          $ref: "#/components/responses/tokenError"
+        403:
+          $ref: "#/components/responses/resepsionisOnly"
+        404:
+          $ref: "#/components/responses/idNotFound"
+
+components:
+  parameters:
+    page:
+      in: query
+      name: page
+      description: page
+      schema:
+        type: integer
+    limit:
+      name: limit
+      description: many data to get, (default 10)
+      in: query
+      schema:
+        type: integer
+  responses:
+    user:
+      description: success get all
+      content:
+        application/json:
+          schema:
+            example:
+              code: 200
+              message: string
+              datas:
+                - id: 1
+                  name: John
+                  email: John@email.com
+                  role: admin
+                  created_at: "2023-12-05T09:34:47.000000Z"
+                  updated_at: "2023-12-05T09:34:47.000000Z"
+              meta:
+                totalData: 500
+                perPage: 1
+                currentPage: 1
+                totalPage: 500
+    adminOnly:
+      description: Forbidden
+      content:
+        application/json:
+          example:
+            code: 403
+            message: only admin can access this.
+            data: null
+
+    resepsionisOnly:
+      description: Forbidden
+      content:
+        application/json:
+          example:
+            code: 403
+            message: only resepsionis can access this.
+            data: null
+
+    tokenError:
+      description: Unauthorized
+      content:
+        application/json:
+          example:
+            code: 401
+            message: Token is Invalid
+            data: null
+    idNotFound:
+      description: Not Found
+      content:
+        application/json:
+          example:
+            code: 404
+            message: id 5 not found
+            data: null
+
+  securitySchemes:
+    bearerAuth:
+      description: use token after login
+      type: http
+      scheme: bearer

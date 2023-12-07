@@ -3,6 +3,7 @@
 namespace App\Repositories\Admin;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Redis;
 
 class UserRepository
@@ -29,6 +30,7 @@ class UserRepository
         $user->update($data);
         return $user;
     }
+    
 
     public function findAllPaginate($offset, $limit)
     {

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Exception;
 
 class AuthRepository
 {
@@ -16,5 +17,9 @@ class AuthRepository
     {
         $user = $this->user::create($data);
         return $user;
+    }
+    public function findByEmail($email)
+    {
+        return $this->user->where("email", $email)->first();
     }
 }

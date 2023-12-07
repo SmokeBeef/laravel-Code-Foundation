@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Middleware\UserMiddleware;
 use App\Services\Admin\UserService;
 
+use Exception;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -20,20 +21,27 @@ class UserController extends Controller
 
     public function getAll(Request $req)
     {
-        $page = $req->query("page", 1);
-        $perPage = $req->query("limit", 10);
-        $offset = $perPage * ($page - 1);
+        try {
+            $page = $req->query("page", 1);
+            $perPage = $req->query("limit", 10);
+            $offset = $perPage * ($page - 1);
 
-        $users = $this->userService->getAllPaginate($offset, $perPage);
+            $users = $this->userService->getAllPaginate($offset, $perPage);
 
-        $totalUsers = $this->userService->count();
-        $meta = $this->metaPagination($totalUsers, $perPage, $page);
-        return $this->responsePagination("Success Get All Users", $users, $meta)
-        ;
+            $totalUsers = $this->userService->count();
+            $meta = $this->metaPagination($totalUsers, $perPage, $page);
+            return $this->responsePagination("Success Get All Users", $users, $meta);
+        } catch (Exception $err) {
+            $this->responseError("Sorry, there was an error on the Server Side", 500);
+        }
     }
     public function delete($id)
     {
-        $user = $this->userService->deleteById($id);
-        return $this->responseSuccess("Success Delete user id " . $id, $user);
+        try {
+            $user = $this->userService->deleteById($id);
+            return $this->responseSuccess("Success Delete user id " . $id, $user);
+        } catch (Exception $err) {
+            return $this->responseError("Sorry, there was an error on the Server Side", 500);
+        }
     }
 }

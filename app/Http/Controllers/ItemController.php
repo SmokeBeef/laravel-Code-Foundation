@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ItemService;
+use Exception;
 use Illuminate\Http\Request;
 
 
@@ -17,15 +18,20 @@ class ItemController extends Controller
 
     public function getAllPaginate(Request $req)
     {
-        $page = $req->query("page", 1);
-        $perPage = $req->query("limit", 10);
-        $offset = $perPage * ($page - 1);
+        try {
 
-        $items = $this->itemService->getAllPagination($offset, $perPage);
-        $totalItems = $this->itemService->total();
+            $page = $req->query("page", 1);
+            $perPage = $req->query("limit", 10);
+            $offset = $perPage * ($page - 1);
 
-        $meta = $this->metaPagination($totalItems,  $perPage, $page);
+            $items = $this->itemService->getAllPagination($offset, $perPage);
+            $totalItems = $this->itemService->total();
 
-        return $this->responsePagination("Success Get Item", $items, $meta);
+            $meta = $this->metaPagination($totalItems, $perPage, $page);
+
+            return $this->responsePagination("Success Get Item", $items, $meta);
+        } catch (Exception $err) {
+            return $this->responseError("Sorry, there was an error on the Server Side");
+        }
     }
 }

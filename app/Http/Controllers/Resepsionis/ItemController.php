@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Middleware\JwtMiddleware;
 use App\Http\Requests\ItemRequest;
 use App\Services\Resepsionis\ItemService;
+use Exception;
 
 class ItemController extends Controller
 {
@@ -18,28 +19,39 @@ class ItemController extends Controller
 
     public function create(ItemRequest $req)
     {
-        $payload = $req->validated();
+        try {
+            $payload = $req->validated();
 
-        $item = $this->itemService->createOne($payload);
-        return $this->responseSuccess("Success create item", $item, 201);
+            $item = $this->itemService->createOne($payload);
+            return $this->responseSuccess("Success create item", $item, 201);
+        } catch (Exception $err) {
+            return $this->responseError("Sorry, there was an error on the Server Side", 500);
+        }
     }
     public function update(ItemRequest $req, $id)
     {
-        $payload = $req->validated();
-        $item = $this->itemService->updateOne($id, $payload);
+        try {
+            $payload = $req->validated();
+            $item = $this->itemService->updateOne($id, $payload);
 
-        if (!$item) {
-            return $this->responseError("id item " . $id . " Not found", 404);
+            if (!$item) {
+                return $this->responseError("id item " . $id . " Not found", 404);
+            }
+            return $this->responseSuccess("Success create item", $item, 201);
+        } catch (Exception $err) {
+            return $this->responseError("Sorry, there was an error on the Server Side", 500);
         }
-
-        return $this->responseSuccess("Success create item", $item, 201);
     }
     public function destroy($id)
     {
-        $item = $this->itemService->deleteOne($id);
-        if (!$item) {
-            return $this->responseError("id item " . $id . " Not found", 404);
+        try {
+            $item = $this->itemService->deleteOne($id);
+            if (!$item) {
+                return $this->responseError("id item " . $id . " Not found", 404);
+            }
+            return $this->responseSuccess("Success create item", $item);
+        } catch (Exception $err) {
+            return $this->responseError("Sorry, there was an error on the Server Side", 500);
         }
-        return $this->responseSuccess("Success create item", $item);
     }
 }
