@@ -42,6 +42,6 @@ class JwtMiddleware
             "code" => $code,
             "message" => $message,
             "data" => null
-        ]);
+        ],$code);
     }
 }

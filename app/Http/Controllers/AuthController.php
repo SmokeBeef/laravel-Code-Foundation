@@ -84,5 +84,4 @@ class AuthController extends Controller
         return $this->responseSuccess("Success Create Many");
     }
 
-
 }
